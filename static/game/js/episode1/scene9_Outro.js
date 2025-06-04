@@ -19,28 +19,25 @@ export default class Scene9_Outro extends Phaser.Scene {
     // final progress (9/9)
     RewardManager.instance.advanceScene();
     this.events.emit('updateProgress', RewardManager.instance.sceneProgress);
+
     const travelerKey = data.characterKey || 'traveler1';
     this.traveler = this.add.sprite(100, 200, travelerKey) // adjust (x,y) to taste
       .setScale(0.6)
-      .setAlpha(0);
-                                     // start invisible
-    const travelerKey = data.characterKey || 'traveler1';
-    this.traveler = this.add.sprite(100, 200, travelerKey) // adjust (x,y) to taste
-      .setScale(0.6)
-      .setAlpha(0);
-    // 4) Tween the traveler to fade in
+      .setAlpha(0);                                      // start invisible
+
+    // Tween the traveler to fade in
     this.tweens.add({
       targets: this.traveler,
       alpha:   1,
       duration: 800
     });
 
-    // 5) Add Raven (start off-screen or invisible)
+    // Add Raven (start off-screen or invisible)
     this.raven = this.add.image(700, 150, 'raven')   // adjust (x,y) to taste
       .setScale(0.45)
       .setAlpha(0);
 
-    // 6) Tween Raven: fade in + (optionally) move to “perch” position
+    // Tween Raven: fade in + move to “perch” position
     this.tweens.add({
       targets: this.raven,
       alpha: 1,
@@ -49,20 +46,24 @@ export default class Scene9_Outro extends Phaser.Scene {
       duration: 1000
     });
 
-
-
     // Robot’s wrap‐up line
     speak("You did it! Ready for the next adventure, or to review what you’ve learned?");
-    // Optionally play outroVoice.wav simultaneously if you have it.
+    // Optionally play outroVoice simultaneously if available:
+    // this.sound.play('outroVoice', { volume: 1.2 });
 
     // Show three buttons: Next Episode, Replay, Review
-    const style = { font: '24px serif', backgroundColor: '#4a90e2', color: '#ffffff', padding: 10 };
+    const style = {
+      font: '24px serif',
+      backgroundColor: '#4a90e2',
+      color: '#ffffff',
+      padding: 10
+    };
 
     // ▶ Next Episode
     this.add.text(300, 450, '▶ Next Episode', style)
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => {
-        // Go to Episode 2 in your Django‐Phaser flow, e.g. redirect URL or scene
+        // Go to Episode 2, passing along data.username and data.characterKey
         window.location.href = `/episodes/2/?username=${data.username}&character=${data.characterKey}`;
       });
 

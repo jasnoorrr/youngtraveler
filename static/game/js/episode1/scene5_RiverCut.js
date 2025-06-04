@@ -38,7 +38,7 @@ export default class Scene5_RiverCut extends Phaser.Scene {
     const travelerKey = data.characterKey || 'traveler1';
     this.traveler = this.add.sprite(100, 200, travelerKey) // adjust (x,y) to taste
       .setScale(0.6)
-      .setAlpha(0);                                                                    // start invisible
+      .setAlpha(1);                                                                    // start invisible
 
     // 4) Tween the traveler to fade in
     this.tweens.add({
@@ -50,7 +50,7 @@ export default class Scene5_RiverCut extends Phaser.Scene {
     // 5) Add Raven (start off-screen or invisible)
     this.raven = this.add.image(700, 150, 'raven')   // adjust (x,y) to taste
       .setScale(0.45)
-      .setAlpha(0);
+      .setAlpha(1);
 
     // 6) Tween Raven: fade in + (optionally) move to “perch” position
     this.tweens.add({

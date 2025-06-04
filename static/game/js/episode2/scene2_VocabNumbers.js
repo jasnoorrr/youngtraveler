@@ -30,7 +30,7 @@ export default class Scene2_VocabNumbers extends Phaser.Scene {
     this.load.audio('skwunlada',  '/static/game/assets/audio/skwunlada.mp3');
 
     // Robot instruction
-    this.load.audio('robotvocab2','/static/game/assets/audio/ep2_robot_vocab2.mp3');
+    //this.load.audio('robotvocab2','/static/game/assets/audio/ep2_robot_vocab2.mp3');
     this.load.audio('ravenvocab2','/static/game/assets/audio/ep2_ravenvocab2.mp3');
   }
 
@@ -48,13 +48,11 @@ export default class Scene2_VocabNumbers extends Phaser.Scene {
     this.raven    = this.add.image(850, 150, 'raven').setScale(0.45);
 
     // 3) Robot voice‐over to introduce words (use pre-recorded or TTS)
-    if (this.sound.get('robotvocab2')) {
-      this.sound.play('robotvocab2', { volume: 1.2 });
-    } else {
-      speak(
+
+    speak(
         "One – lhudah. Two – nada. Three – tada. Four – dida. Five – skwunlada."
-      );
-    }
+    );
+
 
     // 4) Slide in five cards, one by one
     this.cards = [];

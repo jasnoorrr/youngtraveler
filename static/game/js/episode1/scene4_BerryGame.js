@@ -26,7 +26,7 @@ export default class Scene4_BerryGame extends Phaser.Scene {
     RewardManager.instance.advanceScene();
     this.events.emit('updateProgress', RewardManager.instance.sceneProgress);
     const travelerKey = data.characterKey || 'traveler1';
-    this.traveler = this.add.sprite(100, 200, travelerKey) // adjust (x,y) to taste
+    this.traveler = this.add.sprite(350, 300, travelerKey) // adjust (x,y) to taste
       .setScale(0.6)
       .setAlpha(0);                                   // start invisible
 
@@ -38,7 +38,7 @@ export default class Scene4_BerryGame extends Phaser.Scene {
     });
 
     // 5) Add Raven (start off-screen or invisible)
-    this.raven = this.add.image(700, 150, 'raven')   // adjust (x,y) to taste
+    this.raven = this.add.image(700, 400, 'raven')   // adjust (x,y) to taste
       .setScale(0.45)
       .setAlpha(0);
 
@@ -60,7 +60,7 @@ export default class Scene4_BerryGame extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Basket drop‐zone
-    this.basket = this.add.image(700, 500, 'basket')
+    this.basket = this.add.image(500, 500, 'basket')
       .setInteractive({ dropZone: true })
       .setScale(0.4);
 
