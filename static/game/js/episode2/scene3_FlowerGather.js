@@ -12,12 +12,12 @@ export default class Scene3_FlowerGather extends Phaser.Scene {
     // Traveler & Raven
     this.load.image('traveler1', '/static/game/assets/traveler1.png');
     this.load.image('traveler2', '/static/game/assets/traveler2.png');
-    this.load.image('raven',     '/static/game/assets/raven.png');
+    this.load.image('raven',      '/static/game/assets/raven.png');
 
     // Meadow background (same as Scene 1)
     this.load.image('meadowBg', '/static/game/assets/episode2/meadow_bg.png');
 
-    // Five flowers (numbered 1–5)
+    // Five flowers (all use the same image file)
     this.load.image('flower1', '/static/game/assets/episode2/flower.png');
     this.load.image('flower2', '/static/game/assets/episode2/flower.png');
     this.load.image('flower3', '/static/game/assets/episode2/flower.png');
@@ -28,24 +28,21 @@ export default class Scene3_FlowerGather extends Phaser.Scene {
     this.load.image('weaveMat', '/static/game/assets/episode2/weave_mat.png');
 
     // Dakelh audio for 1–5
-    this.load.audio('lhudah',     '/static/game/assets/audio/lhudah.mp3');
-    this.load.audio('nada',       '/static/game/assets/audio/nada.mp3');
-    this.load.audio('tada',       '/static/game/assets/audio/tada.mp3');
-    this.load.audio('dida',       '/static/game/assets/audio/dida.mp3');
-    this.load.audio('skwunlada',  '/static/game/assets/audio/skwunlada.mp3');
+    this.load.audio('lhudah',    '/static/game/assets/audio/lhudah.mp3');
+    this.load.audio('nada',      '/static/game/assets/audio/nada.mp3');
+    this.load.audio('tada',      '/static/game/assets/audio/tada.mp3');
+    this.load.audio('dida',      '/static/game/assets/audio/dida.mp3');
+    this.load.audio('skwunlada', '/static/game/assets/audio/skwunlada.mp3');
 
     // Raven echoes
-    this.load.audio('ravenaudio3_2','/static/game/assets/audio/ep2_ravenaudio3.mp3');
-    this.load.audio('ravenaudio4_2','/static/game/assets/audio/ep2_ravenaudio4.mp3');
+    this.load.audio('ravenaudio3_2', '/static/game/assets/audio/ep2_ravenaudio3.mp3');
+    this.load.audio('ravenaudio4_2', '/static/game/assets/audio/ep2_ravenaudio4.mp3');
 
     // Traveler line after gathering
-    this.load.audio('travelerGather','/static/game/assets/audio/ep2_traveler_gather.mp3');
+    this.load.audio('travelerGather', '/static/game/assets/audio/ep2_traveler_gather.mp3');
 
     // Raven “Wonderful”
-    this.load.audio('ravenaudio5_2','/static/game/assets/audio/ep2_ravenaudio5.mp3');
-
-    // Robot “Tap Next”
-    this.load.audio('robot_next2','/static/game/assets/audio/ep2_robot_next.mp3');
+    this.load.audio('ravenaudio5_2', '/static/game/assets/audio/ep2_ravenaudio5.mp3');
   }
 
   create(data) {
@@ -62,7 +59,7 @@ export default class Scene3_FlowerGather extends Phaser.Scene {
     this.add.image(800, 500, 'weaveMat').setScale(0.7);
 
     // 3) Create 5 flowers, each interactive
-    this.flowerCount = 0;
+    this.flowerCount      = 0;
     this.collectedNumbers = [];
 
     const flowerPositions = [
@@ -79,7 +76,7 @@ export default class Scene3_FlowerGather extends Phaser.Scene {
         .setInteractive({ useHandCursor: true })
         .setData('number', info.number);
 
-      // gently sway animation (up/down)
+      // Gently sway animation (up/down)
       this.tweens.add({
         targets: fl,
         y: info.y - 10,
@@ -108,10 +105,9 @@ export default class Scene3_FlowerGather extends Phaser.Scene {
         fl.disableInteractive();
 
         // Play Dakelh audio + Raven echo
-        const soundKey = ['lhudah','nada','tada','dida','skwunlada'][info.number - 1];
+        const soundKey = ['lhudah', 'nada', 'tada', 'dida', 'skwunlada'][info.number - 1];
         this.sound.play(soundKey);
         this.time.delayedCall(600, () => {
-          // Raven echoes
           this.sound.play(soundKey);
         });
 
@@ -124,18 +120,22 @@ export default class Scene3_FlowerGather extends Phaser.Scene {
             } else {
               speak("I gathered lhudah, nada, tada, dida, skwunlada indak!");
             }
+
             this.time.delayedCall(2000, () => {
               // Raven praises
               this.sound.play('ravenaudio5_2', { volume: 2.0 });
+
               this.time.delayedCall(2000, () => {
-                // Robot “Tap Next to start weaving.”
-                if (this.sound.get('robot_next2')) {
-                  this.sound.play('robot_next2');
-                } else {
-                  speak("Tap Next to start weaving.");
-                }
+                speak("Tap Next to start weaving.");
+
                 // Show Next button
-                const style = { font: '24px serif', backgroundColor: '#4a90e2', color: '#ffffff', padding: 10 };
+                const style = {
+                  font: '24px serif',
+                  backgroundColor: '#4a90e2',
+                  color: '#ffffff',
+                  padding: 10
+                };
+
                 this.add.text(850, 550, 'Next ▶', style)
                   .setInteractive({ useHandCursor: true })
                   .on('pointerdown', () => {

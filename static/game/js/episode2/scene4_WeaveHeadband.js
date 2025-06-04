@@ -16,9 +16,9 @@ export default class Scene4_WeaveHeadband extends Phaser.Scene {
 
     // Weaving background
     this.load.image('weaveFrame', '/static/game/assets/episode2/weave_frame.png');
-    this.load.image('weaveMat', '/static/game/assets/episode2/weave_mat.png');
+    this.load.image('weaveMat',   '/static/game/assets/episode2/weave_mat.png');
 
-    // Reuse flower images from Scene 3 (already loaded)
+    // Reuse flower images from Scene 3
     this.load.image('flower1', '/static/game/assets/episode2/flower.png');
     this.load.image('flower2', '/static/game/assets/episode2/flower.png');
     this.load.image('flower3', '/static/game/assets/episode2/flower.png');
@@ -33,11 +33,9 @@ export default class Scene4_WeaveHeadband extends Phaser.Scene {
     this.load.audio('skwunlada', '/static/game/assets/audio/skwunlada.mp3');
 
     // Raven final
-    this.load.audio('ravenaudio6_2','/static/game/assets/audio/ep2_ravenaudio6.mp3');
+    this.load.audio('ravenaudio6_2', '/static/game/assets/audio/ep2_ravenaudio6.mp3');
     // Traveler “I love it!”
-    this.load.audio('travelerLove','/static/game/assets/audio/ep2_traveler_love.mp3');
-    // Robot “Great job! Ready to match numbers and words?”
-    this.load.audio('robotmatch2','/static/game/assets/audio/ep2_robot_match.mp3');
+    this.load.audio('travelerLove',   '/static/game/assets/audio/ep2_traveler_love.mp3');
   }
 
   create(data) {
@@ -54,7 +52,7 @@ export default class Scene4_WeaveHeadband extends Phaser.Scene {
     this.raven    = this.add.image(850, 150, 'raven').setScale(0.45);
 
     // 2) Create five draggable flowers at bottom
-    this.flowerSlots = []; // store target slots
+    this.flowerSlots = [];
     this.flowerCount = 0;
 
     // Define slot positions (on the circular frame)
@@ -65,6 +63,7 @@ export default class Scene4_WeaveHeadband extends Phaser.Scene {
       { x: 600, y: 180 },
       { x: 700, y: 220 }
     ];
+
     // Draw invisible slot markers for drop zones
     slotPositions.forEach((pos, idx) => {
       const slot = this.add.circle(pos.x, pos.y, 40, 0x000000, 0)
@@ -83,7 +82,7 @@ export default class Scene4_WeaveHeadband extends Phaser.Scene {
     ];
     this.flowers = [];
 
-    flowerPositions.forEach(info => {
+    flowerPositions.forEach((info) => {
       const f = this.add.image(info.x, info.y, info.key)
         .setScale(0.5)
         .setInteractive({ useHandCursor: true })
@@ -102,7 +101,7 @@ export default class Scene4_WeaveHeadband extends Phaser.Scene {
       const flowerNum = img.getData('number');
       const slotNum   = slot.getData('number');
       if (flowerNum === slotNum) {
-        // snap flower into slot
+        // Snap flower into slot
         img.x = slot.x;
         img.y = slot.y;
         img.disableInteractive();
@@ -117,6 +116,7 @@ export default class Scene4_WeaveHeadband extends Phaser.Scene {
           this.time.delayedCall(1000, () => {
             // Raven’s “Our flower headband is finished—ha’wh!”
             this.sound.play('ravenaudio6_2', { volume: 2.0 });
+
             this.time.delayedCall(3000, () => {
               // Traveler “I love it!”
               if (this.sound.get('travelerLove')) {
@@ -124,16 +124,17 @@ export default class Scene4_WeaveHeadband extends Phaser.Scene {
               } else {
                 speak("I love it!");
               }
-              this.time.delayedCall(2000, () => {
-                // Robot “Great job! Ready to match numbers and words?”
-                if (this.sound.get('robotmatch2')) {
-                  this.sound.play('robotmatch2');
-                } else {
-                  speak("Great job! Ready to match numbers and words?");
-                }
 
-                // Show Next button
-                const style = { font: '24px serif', backgroundColor: '#4a90e2', color: '#ffffff', padding: 10 };
+              this.time.delayedCall(2000, () => {
+                // Prompt and show Next button
+                speak("Great job! Ready to match numbers and words?");
+
+                const style = {
+                  font: '24px serif',
+                  backgroundColor: '#4a90e2',
+                  color: '#ffffff',
+                  padding: 10
+                };
                 this.add.text(850, 550, 'Next ▶', style)
                   .setInteractive({ useHandCursor: true })
                   .on('pointerdown', () => {

@@ -1,3 +1,5 @@
+// static/game/js/common/UIScene.js
+
 console.log("UIScene.js loaded");
 
 import { speak }     from './SpeechUtils.js';
@@ -23,6 +25,7 @@ export default class UIScene extends Phaser.Scene {
     }).setInteractive({ useHandCursor: true });
 
     ep1Btn.on('pointerdown', () => {
+      // Stop any Episode 1 & Episode 2 scenes (harmless if some aren’t loaded)
       [
         'scene1_Dawn',
         'scene2_Intro',
@@ -42,7 +45,8 @@ export default class UIScene extends Phaser.Scene {
         'scene7_Review'
       ].forEach(key => this.scene.stop(key));
 
-      this.scene.start('scene1_Dawn', { characterKey: CHARACTER_KEY });
+      // Launch Episode 1’s first scene
+      this.scene.start('scene1_Dawn', { characterKey: window.CHARACTER_KEY || null });
     });
 
     // “Restart Ep2” button
@@ -54,6 +58,7 @@ export default class UIScene extends Phaser.Scene {
     }).setInteractive({ useHandCursor: true });
 
     ep2Btn.on('pointerdown', () => {
+      // Stop any Episode 1 & Episode 2 scenes
       [
         'scene1_Dawn',
         'scene2_Intro',
@@ -73,7 +78,8 @@ export default class UIScene extends Phaser.Scene {
         'scene7_Review'
       ].forEach(key => this.scene.stop(key));
 
-      this.scene.start('scene1_Meadow', { characterKey: CHARACTER_KEY });
+      // Launch Episode 2’s first scene
+      this.scene.start('scene1_Meadow', { characterKey: window.CHARACTER_KEY || null });
     });
 
     // Star counter
@@ -105,8 +111,8 @@ export default class UIScene extends Phaser.Scene {
   }
 
   onProgressUpdate(n) {
-    // If Episode 1 is active, show “n/9”; otherwise “n/7”
-    if (this.scene.isActive('scene1_Dawn')) {
+    const ep = parseInt(window.EPISODE, 10) === 2 ? 2 : 1;
+    if (ep === 1) {
       this.progressText.setText(`Scene: ${n}/9`);
     } else {
       this.progressText.setText(`Scene: ${n}/7`);
@@ -118,8 +124,8 @@ export default class UIScene extends Phaser.Scene {
       .setScale(0.5);
     this.tweens.add({
       targets: badgeImg,
-      alpha: { from: 1, to: 0 },
-      delay: 2000,
+      alpha:    { from: 1, to: 0 },
+      delay:     2000,
       duration: 1000,
       onComplete: () => badgeImg.destroy()
     });
