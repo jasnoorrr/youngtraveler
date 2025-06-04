@@ -1,0 +1,30 @@
+{% extends 'game/base.html' %}
+{% load static %}
+
+{% block head_extra %}
+  <!-- Ensure speechSynthesis voices are loaded early -->
+  <script>
+    window.speechSynthesis.onvoiceschanged = () => {};
+  </script>
+{% endblock %}
+
+{% block content %}
+  <h1 class="title">Young Traveler</h1>
+  <div class="menu">
+    <a class="btn" href="{% url 'game:start' %}">Start</a>
+    <a class="btn" href="{% url 'game:tutorial' %}">Tutorial</a>
+    <a class="btn" href="{% url 'game:settings' %}">Settings</a>
+  </div>
+
+  <!-- Welcome speech -->
+  <script type="module">
+    import { speak } from "{% static 'game/js/common/SpeechUtils.js' %}";
+    window.addEventListener('DOMContentLoaded', () => {
+      speak(
+        "Welcome to Young Traveler! " +
+        "Use the Start button to begin your adventure, " +
+        "or explore the Tutorial or Settings."
+      );
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'game/base.html' %}
+{% load static %}
+
+{% block head_extra %}
+  <!-- Use CDN for Phaser so we don’t need to drop phaser.min.js locally -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+  <script>
+    // Cancel any ongoing TTS and prime the SpeechSynthesis voices
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.onvoiceschanged = () => {};
+  </script>
+{% endblock %}
+
+{% block content %}
+  <!-- This <div> must exactly match Phaser's 1000×600 size -->
+  <div id="game-container"
+       style="width:1000px; height:600px; margin:0 auto; background:#000;">
+  </div>
+
+  <script>
+    // These two globals must be defined BEFORE loading episode_bootstrap.js
+    window.EPISODE       = {{ episode }};
+    window.CHARACTER_KEY = "{{ character }}";
+
+    console.log("play.html → EPISODE =", window.EPISODE,
+                ", CHARACTER_KEY =", window.CHARACTER_KEY);
+  </script>
+
+  <!-- Load the single module that bootstraps ALL scenes -->
+  <script type="module" src="{% static 'game/js/episode_bootstrap.js' %}"></script>
+{% endblock %}

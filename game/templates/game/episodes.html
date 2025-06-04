@@ -1,0 +1,36 @@
+{% extends 'game/base.html' %}
+{% load static %}
+
+{% block title %}Choose Episode{% endblock %}
+
+{% block head_extra %}
+  <!-- Ensure speechSynthesis voices are loaded early -->
+  <script>
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.onvoiceschanged = () => {};
+  </script>
+{% endblock %}
+
+{% block content %}
+  <h2>Hello {{ username }}, pick an episode:</h2>
+  <div class="episodes-list">
+    <a class="episode"
+       href="{% url 'game:play_episode' 1 %}?character={{ character }}">
+      <img src="{% static 'game/assets/episode1.png' %}" alt="Episode 1">
+      <div>Episode 1</div>
+    </a>
+    <a class="episode"
+       href="{% url 'game:play_episode' 2 %}?character={{ character }}">
+      <img src="{% static 'game/assets/episode2.png' %}" alt="Episode 2">
+      <div>Episode 2</div>
+    </a>
+  </div>
+
+  <!-- Spoken instruction -->
+  <script type="module">
+    import { speak } from "{% static 'game/js/common/SpeechUtils.js' %}";
+    window.addEventListener('DOMContentLoaded', () => {
+      speak("Hello {{ username }}, please choose an episode by clicking on its image.");
+    });
+  </script>
+{% endblock %}

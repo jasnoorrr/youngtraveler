@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Young Traveler{% endblock %}</title>
+
+  <!-- Global styles -->
+  <link rel="stylesheet" href="{% static 'game/css/style.css' %}">
+
+  <!-- Allow child templates to inject extra tags (e.g. Phaser, speechUtils) -->
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  {% if request.resolver_match.url_name != 'home' %}
+    <a class="btn back" href="{% url 'game:home' %}">← Home</a>
+  {% endif %}
+
+  <div class="container">
+    {% block content %}
+    {% endblock %}
+  </div>
+
+  <!-- Global UI script (e.g. settings toggle) -->
+  <script src="{% static 'game/js/main.js' %}"></script>
+
+  <!-- Hidden background music player -->
+  <audio
+    id="bgMusic"
+    src="{% static 'game/assets/audio/bird_calls.mp3' %}"
+    loop
+    preload="auto"
+    style="display:none;"
+  ></audio>
+</body>
+</html>

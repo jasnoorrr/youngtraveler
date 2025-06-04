@@ -1,0 +1,48 @@
+{% extends 'game/base.html' %}
+{% load static %}
+
+{% block title %}Choose Your Character{% endblock %}
+
+{% block head_extra %}
+  <!-- Ensure speech voices are available -->
+  <script>
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.onvoiceschanged = () => {};
+  </script>
+{% endblock %}
+
+{% block content %}
+  <h2>Welcome, Traveler!</h2>
+  <form method="get" action="{% url 'game:episodes' %}">
+    <label>Your name:<br>
+      <input type="text" name="username" required>
+    </label>
+
+    <fieldset>
+      <legend>Choose your character</legend>
+
+      <label class="character-option">
+        <input type="radio" name="character" value="traveler1" required>
+        <img src="{% static 'game/assets/traveler1.png' %}" alt="Traveler Boy">
+      </label>
+
+      <label class="character-option">
+        <input type="radio" name="character" value="traveler2" required>
+        <img src="{% static 'game/assets/traveler2.png' %}" alt="Traveler Girl">
+      </label>
+
+    </fieldset>
+
+    <button type="submit" class="btn">Continue</button>
+  </form>
+
+  <!-- Instructional speech -->
+  <script type="module">
+    import { speak } from "{% static 'game/js/common/SpeechUtils.js' %}";
+    window.addEventListener('DOMContentLoaded', () => {
+      speak(
+        "Please enter your name and choose your character by clicking on their picture."
+      );
+    });
+  </script>
+{% endblock %}
