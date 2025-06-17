@@ -2,6 +2,7 @@
 
 import { speak }      from '../common/SpeechUtils.js';
 import RewardManager  from '../common/RewardManager.js';
+import { installBubbleHelper } from '../common/DialogueHelper.js';
 
 export default class Scene7_Map extends Phaser.Scene {
   constructor() {
@@ -9,84 +10,119 @@ export default class Scene7_Map extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('mapBg',    '/static/game/assets/mapbg.png');
-    this.load.image('iconCamp', '/static/game/assets/iconCamp.png');
-    this.load.image('iconRiver','/static/game/assets/iconRiver.png');
-    this.load.image('iconLake', '/static/game/assets/iconLake.png');
-    this.load.audio('camp',     '/static/game/assets/audio/camp.m4a');
-    this.load.audio('river',    '/static/game/assets/audio/salmonriver.m4a');
-    this.load.audio('lake',     '/static/game/assets/audio/lake.m4a');
-    this.load.audio('birdcall', '/static/game/assets/audio/bird_calls.mp3');
+    this.load.image('mapBg',     '/static/game/assets/mapbg.png');
+    this.load.image('iconCamp',  '/static/game/assets/iconCamp.png');
+    this.load.image('iconRiver', '/static/game/assets/iconRiver.png');
+    this.load.image('iconLake',  '/static/game/assets/iconLake.png');
+
+    this.load.audio('camp',      '/static/game/assets/audio/camp.m4a');
+    this.load.audio('river',     '/static/game/assets/audio/salmonriver.m4a');
+    this.load.audio('lake',      '/static/game/assets/audio/lake.m4a');
+    this.load.audio('birdcall',  '/static/game/assets/audio/bird_calls.mp3');
+
+    // Raven flying videos
+    this.load.video(
+      'ravenLeft',
+      '/static/game/assets/video/raven_left.webm',
+      'loadeddata',
+      true,
+      false
+    );
+    this.load.video(
+      'ravenRight',
+      '/static/game/assets/video/raven_right.webm',
+      'loadeddata',
+      true,
+      false
+    );
   }
 
   create(data) {
-    // 1) Stop any leftover sounds, then start birdcall loop
+    // 1) Install the shared bubble helper
+    installBubbleHelper(this);
+
+    // 2) Ambient & progress
     this.sound.stopAll();
     this.sound.play('birdcall', { loop: true, volume: 0.6 });
-
-    // 2) Advance progress to Scene 7/9
     RewardManager.instance.advanceScene();
     this.events.emit('updateProgress', RewardManager.instance.sceneProgress);
 
-    // 3) Raven introduction
-    speak("Here are places in our territory. Hover over each to hear its Dakelh name, and then we’ll go cook dinner.");
-
-    // 4) Full-screen map background
+    // 3) Background map
     this.add.image(500, 300, 'mapBg').setDisplaySize(1000, 600);
 
-    // 5) Define tappable points
+    // 4) Raven flight setup
+    const screenW = this.cameras.main.width;
+    const flyY    = 110;
+
+    this.raven = this.add.video(-100, flyY, 'ravenLeft')
+      .setScale(0.4)
+      .setAlpha(1);
+    this.raven.play(true);
+
+    const flyRight = () => {
+      this.raven.load('ravenLeft');
+      this.raven.play(true);
+      this.tweens.add({
+        targets: this.raven,
+        x: screenW + 100,
+        duration: 6000,
+        ease: 'Linear',
+        onComplete: flyLeft
+      });
+    };
+    const flyLeft = () => {
+      this.raven.load('ravenRight');
+      this.raven.play(true);
+      this.tweens.add({
+        targets: this.raven,
+        x: -100,
+        duration: 6000,
+        ease: 'Linear',
+        onComplete: flyRight
+      });
+    };
+    flyRight(); // start the loop immediately
+
+    // 5) Raven intro bubble
+    const intro = "Here are places in our territory. Hover each icon to hear its Dakelh name.";
+    speak(intro);
+    this.showBubbleDialogue(
+      "Raven",
+      intro,
+      { x: 200, y: 50 },
+      6000
+    );
+
+    // 6) Define points with English labels
     const points = [
-      {
-        key:     'iconCamp',
-        x:       300,
-        y:       350,
-        audio:   'camp',
-        word:    "Ts'ih-lah",
-        meaning: 'Forest Camp'
-      },
-      {
-        key:     'iconRiver',
-        x:       500,
-        y:       200,
-        audio:   'river',
-        word:    'Tsalakoh',
-        meaning: 'Salmon River'
-      },
-      {
-        key:     'iconLake',
-        x:       700,
-        y:       400,
-        audio:   'lake',
-        word:    'Whundzahbun',
-        meaning: 'Lake'
-      }
+      { key: 'iconCamp',  x: 300, y: 350, audio: 'camp',  word: "Ts'ih-lah",    label: 'Forest Camp' },
+      { key: 'iconRiver', x: 500, y: 200, audio: 'river', word: 'Tsalakoh',    label: 'Salmon River' },
+      { key: 'iconLake',  x: 700, y: 400, audio: 'lake',  word: 'Whundzahbun', label: 'Lake' }
     ];
 
+    // 7) Add icons, English labels, and hover behavior
     points.forEach(pt => {
       const icon = this.add.image(pt.x, pt.y, pt.key)
         .setScale(0.5)
         .setInteractive({ useHandCursor: true });
 
-      // Use `once` so this block runs only the first time you hover
+      // English label below
+      this.add.text(pt.x, pt.y + 80, pt.label, {
+        font: '30px serif',
+        color: '#ffffff'
+      }).setOrigin(0.5);
+
+      // On first hover: play the Dakelh audio, show Raven bubble, then advance after 3s
       icon.once('pointerover', () => {
-        // 1) Play the Dakelh audio immediately
         this.sound.play(pt.audio);
-
-        // 2) Raven voices the Dakelh word
         speak(pt.word);
-
-        // 3) Award a star & add to journal
-        RewardManager.instance.awardStar(1);
-        RewardManager.instance.addJournalEntry({
-          word:     pt.word,
-          meaning:  pt.meaning,
-          imgKey:   pt.key,
-          audioKey: pt.audio
-        });
-        this.events.emit('updateStars', RewardManager.instance.stars);
-
-        // 4) After 5 seconds, transition to Scene 8 (Feast)
-        this.time.delayedCall(15000, () => {
+        this.showBubbleDialogue(
+          "Raven",
+          pt.word,
+          { x: pt.x, y: pt.y - 20 },
+          2000
+        );
+        this.time.delayedCall(6000, () => {
           this.scene.start('scene8_Feast', data);
         });
       });

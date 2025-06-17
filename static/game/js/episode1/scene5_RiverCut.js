@@ -2,96 +2,75 @@
 
 import { speak }      from '../common/SpeechUtils.js';
 import RewardManager  from '../common/RewardManager.js';
+import { installBubbleHelper } from '../common/DialogueHelper.js';
+
 
 export default class Scene5_RiverCut extends Phaser.Scene {
-  constructor() {
-    super('scene5_RiverCut');
-  }
+  constructor() { super('scene5_RiverCut'); }
 
   preload() {
-    // 1) Load the river video from the “video” folder
-    this.load.video(
-      'riverBg',
-      '/static/game/assets/video/riverbg.mp4',
-      'loadeddata',
-      true,    // noAudio: we’ll play water.mp3 underneath instead
-      false
-    );
-    this.load.image('traveler1', '/static/game/assets/traveler1.png');
-    this.load.image('traveler2', '/static/game/assets/traveler2.png');
-    this.load.image('raven',     '/static/game/assets/raven.png');
-    // 2) Load ambient water audio and “talukw” pronunciation
-    this.load.audio('water',   '/static/game/assets/audio/water.mp3');
-    this.load.audio('talukw',  '/static/game/assets/audio/salmon.m4a');
-    this.load.audio('ravenaudio5', '/static/game/assets/audio/ravenaudio (5).mp3');
-    this.load.audio('birdcall', '/static/game/assets/audio/bird_calls.mp3');
+    this.load.video('riverBg',    '/static/game/assets/video/riverbg.mp4', 'loadeddata', true, false);
+    this.load.image('traveler1',  '/static/game/assets/traveler1.png');
+    this.load.image('traveler2',  '/static/game/assets/traveler2.png');
+    this.load.video('ravenVideo', '/static/game/assets/video/raven_loop.webm', 'loadeddata', true, false);
+    this.load.audio('water',      '/static/game/assets/audio/water.mp3');
+    this.load.audio('ravenaudio5','/static/game/assets/audio/ravenaudio (5).mp3');
+    this.load.audio('birdcall',   '/static/game/assets/audio/bird_calls.mp3');
   }
 
   create(data) {
-    // 0) Immediately stop the forest background (so its looped image/audio stops)
-    this.scene.stop('BackgroundScene');
 
-    // 1) Now stop any stray sounds (just in case)
+
+    // 1) Ambient & progress
     this.sound.stopAll();
     this.sound.play('birdcall', { loop: true, volume: 0.6 });
+    RewardManager.instance.advanceScene();
+    this.events.emit('updateProgress', RewardManager.instance.sceneProgress);
+    installBubbleHelper(this);
 
-    const travelerKey = data.characterKey || 'traveler1';
-    this.traveler = this.add.sprite(100, 200, travelerKey) // adjust (x,y) to taste
-      .setScale(0.6)
-      .setAlpha(1);                                                                    // start invisible
+    // 2) Video background first
+    const vid = this.add.video(0, 0, 'riverBg').setOrigin(0);
+    vid.on('play', () => vid.setDisplaySize(this.cameras.main.width, this.cameras.main.height));
+    vid.play(true).setMute(true);
 
-    // 4) Tween the traveler to fade in
-    this.tweens.add({
-      targets: this.traveler,
-      alpha:   1,
-      duration: 800
-    });
+    // 3) Water audio
+    this.sound.play('water', { loop: true, volume: 0.3 });
 
-    // 5) Add Raven (start off-screen or invisible)
-    this.raven = this.add.image(700, 150, 'raven')   // adjust (x,y) to taste
-      .setScale(0.45)
-      .setAlpha(1);
+    // 4) Traveler fade in
+    const key = data.characterKey || 'traveler1';
+    this.traveler = this.add.sprite(300, 300, key).setScale(0.6).setAlpha(0);
+    this.tweens.add({ targets: this.traveler, alpha: 1, duration: 800 });
 
-    // 6) Tween Raven: fade in + (optionally) move to “perch” position
+    // 5) Raven fade + audio → THEN narrator
+    this.raven = this.add.video(700, 150, 'ravenVideo').setScale(0.45).setAlpha(0);
     this.tweens.add({
       targets: this.raven,
       alpha: 1,
-      y:     200,       // final “perch” y—tweak to suit your layout
-      ease:  'Power1',
-      duration: 1000
-    });
+      y: 200,
+      duration: 1000,
+      ease: 'Power1',
+      onComplete: () => {
+        this.raven.play(true);
+        const ravenLine = this.sound.add('ravenaudio5', { volume: 3.0 });
+        ravenLine.play();
+        this.showBubbleDialogue(
+            "Raven",
+            "In Dakelh, sockeye salmon is called 'Taslakoh'",
+            { x: 350, y: 130 },
+            6000
+        );
 
-
-    // 2) Advance our progress tracker: Scene 5/9
-    RewardManager.instance.advanceScene();
-    this.events.emit('updateProgress', RewardManager.instance.sceneProgress);
-
-    // 3) Robot (TTS) introduction
-    speak("We’re at Tsalakoh, the Salmon River. Listen to the flow…");
-
-    // 4) Add the video background, muted but set to loop
-    const vid = this.add.video(0, 0, 'riverBg').setOrigin(0);
-    vid.on('play', () => {
-      // Stretch to fill the entire 1000×600 canvas
-      vid.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
-    });
-    vid.play(true).setMute(true); // “true”→loop
-
-    // 5) Play ambient water.mp3 underneath (looped)
-    this.sound.play('water', { loop: true, volume: 0.3 });
-
-
-    // 6) Raven’s line after 2 seconds
-    this.time.delayedCall(5000, () => {
-      this.sound.play('ravenaudio5', { loop: false, volume: 2.0 });
-      //this.sound.play('talukw');
-    });
-
-    // 8) Robot prompt after 5.5 seconds total
-    speak("Tap the salmon as they swim by to hear ‘talukw’!");
-
-    this.input.once('pointerdown', () => {
-      this.scene.start('scene6_Fishing', data);
+        ravenLine.once('complete', () => {
+          // Now Robot narrator speaks
+          speak("Tap the salmon as they swim by to hear ‘talukw’!");
+          this.add.text(500, 50,
+            "Tap the salmon as they swim by to hear ‘talukw’!",
+            { font: '28px serif', align: 'center', wordWrap: { width: 800 } }
+          ).setOrigin(0.5);
+          // Enable next-scene on click
+          this.input.once('pointerdown', () => this.scene.start('scene6_Fishing', data));
+        });
+      }
     });
   }
 }
