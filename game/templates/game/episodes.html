@@ -4,33 +4,62 @@
 {% block title %}Choose Episode{% endblock %}
 
 {% block head_extra %}
-  <!-- Ensure speechSynthesis voices are loaded early -->
-  <script>
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.onvoiceschanged = () => {};
-  </script>
+  <style>
+    /* Full‑screen gradient background */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient( circle at 50% 50%, #f5a64a, #a9674c, #504148);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    /* Centered frosted‑glass card */
+    .content-card {
+      background: #00000055;
+      backdrop-filter: blur(8px);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+      padding: 40px;
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      margin: auto;           /* ensure horizontal centering */
+    }
+    .episodes-list {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 24px;
+    }
+    .episode img {
+      width: 240px;
+      border-radius: 12px;
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    .episode img:hover {
+      transform: scale(1.05);
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-  <h2>Hello {{ username }}, pick an episode:</h2>
-  <div class="episodes-list">
-    <a class="episode"
-       href="{% url 'game:play_episode' 1 %}?character={{ character }}">
-      <img src="{% static 'game/assets/episode1.png' %}" alt="Episode 1">
-      <div>Episode 1</div>
-    </a>
-    <a class="episode"
-       href="{% url 'game:play_episode' 2 %}?character={{ character }}">
-      <img src="{% static 'game/assets/episode2.png' %}" alt="Episode 2">
-      <div>Episode 2</div>
-    </a>
+  <div class="content-card">
+    <h2>Click on the image to start the game</h2>
+    <div class="episodes-list">
+      <a class="episode" href="{% url 'game:play_episode' 1 %}?character={{ character }}">
+        <img src="{% static 'game/assets/episode1.png' %}" alt="Episode 1">
+      </a>
+    </div>
   </div>
 
   <!-- Spoken instruction -->
   <script type="module">
     import { speak } from "{% static 'game/js/common/SpeechUtils.js' %}";
     window.addEventListener('DOMContentLoaded', () => {
-      speak("Hello {{ username }}, please choose an episode by clicking on its image.");
+      speak("Click on the image to start the game.");
     });
   </script>
 {% endblock %}

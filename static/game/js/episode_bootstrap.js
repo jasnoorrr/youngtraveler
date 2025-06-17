@@ -12,6 +12,7 @@ import Scene1_Dawn       from './episode1/scene1_Dawn.js';
 import Scene2_Intro      from './episode1/scene2_Intro.js';
 import Scene3_Vocab      from './episode1/scene3_Vocab.js';
 import Scene4_BerryGame  from './episode1/scene4_BerryGame.js';
+import Scene4b_FishVocab from './episode1/scene4b_FishVocab.js';
 import Scene5_RiverCut   from './episode1/scene5_RiverCut.js';
 import Scene6_Fishing    from './episode1/scene6_Fishing.js';
 import Scene7_Map        from './episode1/scene7_Map.js';
@@ -47,6 +48,7 @@ const config = {
     Scene2_Intro,
     Scene3_Vocab,
     Scene4_BerryGame,
+    Scene4b_FishVocab,
     Scene5_RiverCut,
     Scene6_Fishing,
     Scene7_Map,
@@ -85,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'scene2_Intro',
       'scene3_Vocab',
       'scene4_BerryGame',
+      'scene4b_FishVocab',
       'scene5_RiverCut',
       'scene6_Fishing',
       'scene7_Map',

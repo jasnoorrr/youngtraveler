@@ -1,21 +1,27 @@
 :root {
   --primary:    #4a90e2;
   --secondary:  #50e3c2;
-  --background: #f0f8ff;
   --text:       #333333;
   --light:      #ffffff;
   --shadow:     rgba(0, 0, 0, 0.1);
 }
 
+/* Reset & box‐sizing */
 * {
   box-sizing: border-box;
-}
-
-body {
   margin: 0;
   padding: 0;
+}
+
+/* Full-screen radial gradient background */
+body {
   font-family: 'Comic Sans', sans-serif;
-  background: var(--background);
+  background: radial-gradient(
+    circle at 50% 50%,
+    #f5a64a,
+    #a9674c,
+    #504148
+  );
   color: var(--text);
   min-height: 100vh;
   display: flex;
@@ -23,13 +29,14 @@ body {
   align-items: center;
 }
 
+
+/* Existing .container styles (can live alongside) */
 .container {
   width: 100%;
   max-width: 960px;
   padding: 2rem;
   position: relative;
 }
-
 /* Page titles */
 h1.title {
   font-size: 3rem;
