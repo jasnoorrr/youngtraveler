@@ -6,10 +6,46 @@
   <script>
     window.speechSynthesis.onvoiceschanged = () => {};
   </script>
+  <style>
+    /* Full-screen cover behind all content */
+    #cover-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      z-index: -1; /* behind everything */
+    }
+    #cover-container img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; /* scale & crop to fill */
+    }
+    /* push the menu down */
+    .menu {
+      margin-top: 200px; /* adjust this value up/down as you like */
+    }
+    /* Change button colors */
+    .menu .btn {
+      background-color: #ffe000;  /* teal */
+      color: #ffffff;             /* white text */
+      border: none;
+    }
+    .menu .btn:hover {
+      background-color: #005b66;  /* darker teal on hover */
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
-  <h1 class="title">Young Traveler</h1>
+  <!-- Full-screen background cover -->
+  <div id="cover-container">
+    <img
+      src="{% static 'game/assets/cover_landscape.png' %}"
+      alt="Game Cover"
+    />
+  </div>
+
   <div class="menu">
     <a class="btn" href="{% url 'game:start' %}">Start</a>
     <a class="btn" href="{% url 'game:tutorial' %}">Tutorial</a>
