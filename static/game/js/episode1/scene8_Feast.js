@@ -20,6 +20,7 @@ export default class Scene8_Feast extends Phaser.Scene {
   }
 
   create(data) {
+    this.sound.stopAll();
     // 1) Install the bubble helper
     installBubbleHelper(this);
 
