@@ -2,161 +2,171 @@
 
 import { speak }      from '../common/SpeechUtils.js';
 import RewardManager  from '../common/RewardManager.js';
+import { installBubbleHelper } from '../common/DialogueHelper.js';
 
 export default class Scene8_Feast extends Phaser.Scene {
-  constructor() {
-    super('scene8_Feast');
-  }
+  constructor() { super('scene8_Feast'); }
 
   preload() {
-    this.load.image('traveler1', '/static/game/assets/traveler1.png');
-    this.load.image('traveler2', '/static/game/assets/traveler2.png');
-    this.load.image('raven',     '/static/game/assets/raven.png');
-    this.load.image('feastBg',    '/static/game/assets/feast_bg.png');
-    this.load.image('berry',      '/static/game/assets/berry.png');
-    this.load.image('salmonFish', '/static/game/assets/salmonfish.png');
-    this.load.audio('hakał',      '/static/game/assets/audio/hakal.mp3');
-    this.load.audio('tsaa',       '/static/game/assets/audio/huckleberry.m4a');
-    this.load.audio('talukw',     '/static/game/assets/audio/salmon.m4a');
+    this.load.image('traveler1','/static/game/assets/traveler1.png');
+    this.load.image('traveler2','/static/game/assets/traveler2.png');
+    this.load.image('feastBg',   '/static/game/assets/feast_bg.png');
+    this.load.image('berry',     '/static/game/assets/berry.png');
+    this.load.image('salmonFish','/static/game/assets/salmonfish.png');
+    this.load.video('ravenVideo','/static/game/assets/video/raven_loop.webm','loadeddata',true,false);
+    this.load.audio('hakał',     '/static/game/assets/audio/hakal.mp3');
+    this.load.audio('tsaa',      '/static/game/assets/audio/huckleberry.m4a');
+    this.load.audio('talukw',    '/static/game/assets/audio/salmon.m4a');
   }
 
   create(data) {
-    // 1) Advance progress to Scene 8/9
+    // 1) Install the bubble helper
+    installBubbleHelper(this);
+
+    // 2) Progress tracker
     RewardManager.instance.advanceScene();
     this.events.emit('updateProgress', RewardManager.instance.sceneProgress);
 
-    // 2) Raven instruction
-    speak("Time for a feast! Drag your berries and salmon from above onto the platter.");
+    // 3) Background
+    this.add.image(500,300,'feastBg').setDisplaySize(1000,600);
 
-    // 3) Draw the platter background (centered at x=500, y=300, sized 1000×600)
-    this.add.image(500, 300, 'feastBg').setDisplaySize(1000, 600);
+    // 4) Traveler fades in
+    const key = data.characterKey || 'traveler1';
+    this.traveler = this.add.sprite(300,280,key).setScale(0.6).setAlpha(0);
+    this.tweens.add({ targets: this.traveler, alpha: 1, duration: 800 });
 
-    // 4) Add traveler sprite
-    const travelerKey = data.characterKey || 'traveler1';
-    this.traveler = this.add.sprite(100, 200, travelerKey)
-      .setScale(0.6)
-      .setAlpha(0);
-
-    // 5) Tween the traveler to fade in
-    this.tweens.add({
-      targets: this.traveler,
-      alpha:   1,
-      duration: 800
-    });
-
-    // 6) Add Raven (start off-screen or invisible)
-    this.raven = this.add.image(700, 150, 'raven')
-      .setScale(0.45)
-      .setAlpha(0);
-
-    // 7) Tween Raven: fade in + move to “perch” position
+    // 5) Raven appears a bit lower
+    this.raven = this.add.video(700,250,'ravenVideo').setScale(0.45).setAlpha(0);
     this.tweens.add({
       targets: this.raven,
       alpha: 1,
-      y:     200,
-      ease:  'Power1',
-      duration: 1000
+      y: 200,
+      duration: 1000,
+      ease: 'Power1',
+      onComplete: () => {
+        this.raven.play(true);
+      }
     });
 
-    // 8) Draw a semi-transparent “bubble” at the top middle to hold draggable items
-    const bubbleX = this.cameras.main.centerX;
-    const bubbleY = 100;
-    const bubbleRadius = 100;
-    const bubble = this.add.circle(bubbleX, bubbleY, bubbleRadius, 0xffffff, 0.3);
-    bubble.setStrokeStyle(2, 0xccccff, 0.6);
+    // 6) Narrator line (no bubble)
+    const narratorLine = "Time for a feast! Drag your berries and salmon from above onto the platter.";
+    speak(narratorLine);
+    this.add.text(500, 580, narratorLine, {
+      font: '24px serif',
+      color: '#ffffff',
+      backgroundColor: '#00000080',
+      padding: { x: 10, y: 6 },
+      wordWrap: { width: 900 },
+      align: 'center'
+    }).setOrigin(0.5);
 
-    // 9) Prepare counters
+    // 7) Draw bubble zone
+    const cx = this.cameras.main.centerX, bubbleY = 100, r = 100;
+    this.add.circle(cx, bubbleY, r, 0xffffff, 0.3)
+      .setStrokeStyle(2, 0xccccff, 0.6);
+
+    // 8) Prepare counts
     this.berryCount = 0;
     this.salmonCount = 0;
 
-    // 10) Create 3 berries inside the bubble
-    const berryXs = [bubbleX - 60, bubbleX, bubbleX + 60];
-    berryXs.forEach((xPos) => {
-      const b = this.add.image(xPos, bubbleY - 20, 'berry')
+    // 9) Create draggable berries
+    [-60, 0, 60].forEach(dx => {
+      const b = this.add.image(cx + dx, bubbleY - 20, 'berry')
         .setScale(0.1)
         .setInteractive({ useHandCursor: true })
-        .setData('type', 'berry')
-        .setData('inBubble', true);
+        .setData('type', 'berry');
       this.input.setDraggable(b);
     });
 
-    // 11) Create 3 salmon icons inside the bubble
-    const salmonXs = [bubbleX - 60, bubbleX, bubbleX + 60];
-    salmonXs.forEach((xPos) => {
-      const s = this.add.image(xPos, bubbleY + 40, 'salmonFish')
+    // 10) Create draggable salmon
+    [-60, 0, 60].forEach(dx => {
+      const s = this.add.image(cx + dx, bubbleY + 40, 'salmonFish')
         .setScale(0.1)
         .setInteractive({ useHandCursor: true })
-        .setData('type', 'salmon')
-        .setData('inBubble', true);
+        .setData('type', 'salmon');
       this.input.setDraggable(s);
     });
 
-    // 12) Allow dragging: any icon follows pointer
-    this.input.on('drag', (pointer, img, dragX, dragY) => {
-      img.x = dragX;
-      img.y = dragY;
-      img.setData('inBubble', false);
+    // 11) Drag logic
+    this.input.on('drag', (_, img, x, y) => {
+      img.setPosition(x, y);
     });
 
-    // 13) When dragging ends, check if dropped onto platter area
-    this.input.on('dragend', (pointer, img) => {
-      // Compute distance from platter center (500, 300)
-      const dx = img.x - 500;
-      const dy = img.y - 300;
-      if (dx * dx + dy * dy < 200 * 200) {
-        // Snap onto platter and disable further dragging
-        img.setScale(0.1).disableInteractive();
-
-        const itemType = img.getData('type');
-        if (itemType === 'berry') {
+    this.input.on('dragend', (_, img) => {
+      const dx = img.x - 500, dy = img.y - 300;
+      if (dx*dx + dy*dy < 300*300) {
+        img.disableInteractive().setScale(0.1);
+        const type = img.getData('type');
+        if (type === 'berry') {
           this.berryCount++;
-          speak("Tsaa!");
           RewardManager.instance.awardStar(1);
           RewardManager.instance.addJournalEntry({
-            word:    'tsaa',
-            meaning: 'berry',
-            imgKey:  'berry',
+            word:   'tsaa',
+            meaning:'berry',
+            imgKey: 'berry',
             audioKey:'tsaa'
           });
           this.events.emit('updateStars', RewardManager.instance.stars);
         } else {
           this.salmonCount++;
-          speak("Talukw!");
           RewardManager.instance.awardStar(1);
           RewardManager.instance.addJournalEntry({
-            word:    'talukw',
-            meaning: 'salmon',
-            imgKey:  'salmonFish',
+            word:   'talukw',
+            meaning:'salmon',
+            imgKey: 'salmonFish',
             audioKey:'talukw'
           });
           this.events.emit('updateStars', RewardManager.instance.stars);
         }
 
-        // 14) Once all 6 items are placed (3 berries + 3 salmon):
+        // 12) Once all are placed, chain character bubbles
         if (this.berryCount === 3 && this.salmonCount === 3) {
+          // Raven says “Hakał!”
           speak("Hakał!");
-          this.time.delayedCall(1000, () => {
+          this.showBubbleDialogue("Raven", "Hakał!", { x: 700, y: 200 }, 2000);
+
+          // Traveler thanks
+          this.time.delayedCall(2000, () => {
             speak("It was a delicious meal! Thanks a lot!");
-            this.time.delayedCall(1000, () => {
-              speak("And I also learned a lot! Tsaa, t’enäh, bäts, talukw, usjooh, Whundzahbun.");
-              this.time.delayedCall(2000, () => {
-                speak("Let’s celebrate! You did it! Ready for the next adventure?");
-                this.time.delayedCall(2000, () => {
-                  this.scene.start('scene9_Outro', data);
-                });
-              });
-            });
+            this.showBubbleDialogue(
+              "Traveler",
+              "It was a delicious meal! Thanks a lot!",
+              { x: 200, y: 260 },
+              3000
+            );
+          });
+
+          // Raven recaps
+          this.time.delayedCall(5000, () => {
+            speak("And I also learned a lot! Tsaa, t’enäh, bäts, talukw, usjooh, Whundzahbun.");
+            this.showBubbleDialogue(
+              "Raven",
+              "And I also learned a lot! Tsaa, t’enäh, bäts, talukw, usjooh, Whundzahbun.",
+              { x: 700, y: 200 },
+              4000
+            );
+          });
+
+          // Traveler closes
+          this.time.delayedCall(9000, () => {
+            speak("Ready for the next adventure?");
+            this.showBubbleDialogue(
+              "Traveler",
+              "Ready for the next adventure?",
+              { x: 200, y: 260 },
+              3000
+            );
+          });
+
+          // Finally transition
+          this.time.delayedCall(12000, () => {
+            this.scene.start('scene9_Outro', data);
           });
         }
       } else {
-        // If dropped outside the platter, snap back into bubble
-        img.setData('inBubble', true);
-        const isBerry = img.getData('type') === 'berry';
-        const destY = isBerry ? bubbleY - 20 : bubbleY + 40;
-        const minX = bubbleX - bubbleRadius + 20;
-        const maxX = bubbleX + bubbleRadius - 20;
-        img.x = Phaser.Math.Clamp(img.x, minX, maxX);
-        img.y = destY;
+        // Snap back if outside
+        img.x = Phaser.Math.Clamp(img.x, cx - r + 20, cx + r - 20);
+        img.y = img.getData('type') === 'berry' ? bubbleY - 20 : bubbleY + 40;
       }
     });
   }
