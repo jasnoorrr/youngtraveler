@@ -16,7 +16,7 @@ export default class Scene3_Vocab extends Phaser.Scene {
     this.load.audio('birdcall', '/static/game/assets/audio/bird_calls.mp3');
     this.load.audio('tsaa',     '/static/game/assets/audio/huckleberry.m4a');
     this.load.audio('tenah',    '/static/game/assets/audio/bush.m4a');
-    this.load.audio('bats',     '/static/game/assets/audio/basket.mp3');
+    this.load.audio('Chalhyal',     '/static/game/assets/audio/basket.mp3');
 
     this.load.video(
       'ravenLeft',
@@ -94,7 +94,7 @@ export default class Scene3_Vocab extends Phaser.Scene {
     // Create cards
     this.cards = [];
     const keys      = ['berryCard', 'bushCard', 'basketCard'];
-    const sounds    = ['tsaa', 'tenah', 'bats'];
+    const sounds    = ['tsaa', 'tenah', 'Chalhyal'];
     const positions = [200, 500, 800];
 
     keys.forEach((key, i) => {

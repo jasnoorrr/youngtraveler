@@ -19,9 +19,9 @@ export default class Scene7_Map extends Phaser.Scene {
     this.load.image('netIcon',    '/static/game/assets/net.png');
 
     this.load.audio('birdcall',   '/static/game/assets/audio/bird_calls.mp3');
-    this.load.audio('tsaa',       '/static/game/assets/audio/huckleberry.m4a');
-    this.load.audio('tenah',      '/static/game/assets/audio/bush.m4a');
-    this.load.audio('bats',       '/static/game/assets/audio/basket.mp3');
+    this.load.audio('tsulhcho',       '/static/game/assets/audio/huckleberry.m4a');
+    this.load.audio('chintoh',      '/static/game/assets/audio/bush.m4a');
+    this.load.audio('Chalhyal',       '/static/game/assets/audio/basket.mp3');
     this.load.audio('talukw',     '/static/game/assets/audio/salmon.m4a');
     this.load.audio('riverAudio', '/static/game/assets/audio/salmonriver.m4a');
     this.load.audio('fishingnet', '/static/game/assets/audio/fishingnet.m4a');
@@ -88,9 +88,9 @@ export default class Scene7_Map extends Phaser.Scene {
 
     // icons laid out evenly
     const items = [
-      { key: 'berryIcon',  x: 250, y: 200, audio: 'tsaa',       word: 'Tsaa'      },
-      { key: 'bushIcon',   x: 500, y: 200, audio: 'tenah',      word: "T’enäh"    },
-      { key: 'basketIcon', x: 750, y: 200, audio: 'bats',       word: 'Bäts'      },
+      { key: 'berryIcon',  x: 250, y: 200, audio: 'tsulhcho',       word: 'Tsulhcho'      },
+      { key: 'bushIcon',   x: 500, y: 200, audio: 'chintoh',      word: "Chintoh"    },
+      { key: 'basketIcon', x: 750, y: 200, audio: 'Chalhyal',       word: 'Chalhyal'      },
       { key: 'salmonIcon', x: 250, y: 400, audio: 'talukw',     word: 'Talukw'    },
       { key: 'riverIcon',  x: 500, y: 400, audio: 'riverAudio', word: 'Tsalakoh' },
       { key: 'netIcon',    x: 750, y: 400, audio: 'fishingnet', word: 'Lhombilh'  }
